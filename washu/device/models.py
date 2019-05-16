@@ -1,16 +1,30 @@
+from datetime import datetime, timedelta
+
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 # Create your models here.
 
 
 class Coordinator(models.Model):
+    LIVE_TIME = 120  # seconds
+
     mac = models.CharField(max_length=17, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=32)
-    active = models.BooleanField(default=False)
+    last_signal = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return "{}[{}]".format(self.name, self.mac)
+
+    def check_heartbeat(self):
+        self.last_signal = timezone.now()
+        self.save()
+
+    def is_alive(self):
+        if self.last_signal + timedelta(seconds=self.LIVE_TIME) < timezone.now():
+            return False
+        return True
 
 
 class SmartPlug(models.Model):

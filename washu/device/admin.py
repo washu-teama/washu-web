@@ -5,7 +5,11 @@ from .models import *
 
 @admin.register(Coordinator)
 class CoordinatorAdmin(admin.ModelAdmin):
-    list_display = ["mac", "user", "name", "active"]
+    list_display = ["mac", "user", "name", "last_signal", "is_alive"]
+
+    def is_alive(self, obj):
+        return obj.is_alive()
+    is_alive.allow_tags = True
 
 
 @admin.register(SmartPlug)
