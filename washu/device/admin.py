@@ -5,7 +5,7 @@ from .models import *
 
 @admin.register(Coordinator)
 class CoordinatorAdmin(admin.ModelAdmin):
-    list_display = ["mac", "user", "name"]
+    list_display = ["mac", "user", "name", "active"]
 
 
 @admin.register(SmartPlug)

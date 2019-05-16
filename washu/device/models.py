@@ -7,6 +7,7 @@ class Coordinator(models.Model):
     mac = models.CharField(max_length=17, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=32)
+    active = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}[{}]".format(self.name, self.mac)
