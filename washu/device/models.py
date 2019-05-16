@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 
 
@@ -13,9 +15,12 @@ class Coordinator(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=32)
     last_signal = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(editable=False, default=timezone.now)
 
-    def __str__(self):
-        return "{}[{}]".format(self.name, self.mac)
+    def save(self, *args, **kwargs):
+        if not self.created_at:
+            self.created = timezone.now()
+        return super(Coordinator, self).save(*args, **kwargs)
 
     def check_heartbeat(self):
         self.last_signal = timezone.now()
@@ -26,11 +31,23 @@ class Coordinator(models.Model):
             return False
         return True
 
+    def __str__(self):
+        return "{}[{}]".format(self.name, self.mac)
+
 
 class SmartPlug(models.Model):
     serial_number = models.CharField(max_length=20, primary_key=True)
     coordinator = models.ForeignKey(Coordinator, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=32)
+    created_at = models.DateTimeField(editable=False, default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        if not self.created_at:
+            self.created = timezone.now()
+            ret = super(SmartPlug, self).save(*args, **kwargs)
+            return ret
+        else:
+            return super(SmartPlug, self).save(*args, **kwargs)
 
     def __str__(self):
         return "{}[{}]".format(self.name, self.serial_number)
@@ -41,11 +58,22 @@ class SmartPlugOwner(models.Model):
     FAMILY = 2
     GUEST = 3
     GRANT = [(COORD, "coordinator"), (FAMILY, "family"), (GUEST, "guest")]
-
-    smartplug = models.ForeignKey(Coordinator, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    smartplug = models.ForeignKey(SmartPlug, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     grant = models.IntegerField(choices=GRANT)
     name = models.CharField(max_length=32)
 
     def __str__(self):
         return "{}[{}] {}".format(self.user, self.grant, self.smartplug)
+
+
+@receiver(post_save, sender=SmartPlug)
+def create_relation_between_smartplug_and_coordinator(sender, instance, created, **kwargs):
+    if created:
+        SmartPlugOwner(
+            smartplug=instance,
+            user=instance.coordinator.user,
+            name=instance.name,
+            grant=SmartPlugOwner.COORD
+        ).save()
