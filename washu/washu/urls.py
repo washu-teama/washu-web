@@ -25,5 +25,6 @@ from .main_view import Main
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('wauser.urls')),
+    path('device/', include('device.urls')),
     path('', Main.as_view(), name='main')
 ]  #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
