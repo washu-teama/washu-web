@@ -24,20 +24,39 @@ window.onclick = function(event) {
 
 	<!--content-->
 	<div class="container-fluid">
+
+		{% if form.errors %}
+			{% for field in form %}
+				{% for error in field.errors %}
+				<div class=" alert alert-danger">
+					<strong>{{ error|escape }}</strong>
+				</div>
+				{% endfor %}
+			{% endfor %}
+			{% for error in form.non_field_errors %}
+				<div class=" alert alert-danger">
+					<strong>{{ error|escape }}</strong>
+				</div>
+			{% endfor %}
+		{% endif %}
+
 		<div class="col-sm-12">
 		  <!-- title -->
           <div class="row text-center">
             <article class="col-xs-12">
-				<h2 class="text-white"><strong>Sign Up</strong></h2>
+				<h2 class="text-white"><strong>Sign Up </strong></h2>
             </article>
           </div>
 		  <!-- end title -->
+			<div>
 
+			</div>
 
 	<!-- sign up -->
 	<form method="POST" action="{% url 'signup' %}"> {% csrf_token %}
 	<div class="container">
 		<!-- id -->
+
 		<div class="row">
 			<article class="col-xs-12 bottom-margin0">
 				<div class="col-xs-12">
@@ -47,6 +66,7 @@ window.onclick = function(event) {
 					<input class="signform " type="text" placeholder="Enter ID" name="uid" id="uid" required>
 				</div>
 			</article>
+
 		</div>
 		<!-- end id -->
 		<!-- password -->
@@ -86,5 +106,6 @@ window.onclick = function(event) {
 	</form>
 	<!--end sign up-->
 		</div>
+
 	</div>
  {% endblock %}
