@@ -1,0 +1,90 @@
+{% extends "washu_base.html" %}
+
+{% block add_style %}
+    {% load static %}
+	<link rel="stylesheet" href="{% static 'css/add.css'%}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+{% endblock %}
+
+{% block body_attribute %} class="signup-bg" {% endblock %}
+{% block add_script %}
+<script>
+// Get the modal
+var modal = document.getElementById('id01');
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
+{% endblock %}
+{% block contents %}
+
+
+	<!--content-->
+	<div class="container-fluid">
+		<div class="col-sm-12">
+		  <!-- title -->
+          <div class="row text-center">
+            <article class="col-xs-12">
+				<h2 class="text-white"><strong>Sign Up</strong></h2>
+            </article>
+          </div>
+		  <!-- end title -->
+
+
+	<!-- sign up -->
+	<form method="POST" action="{% url 'signup' %}"> {% csrf_token %}
+	<div class="container">
+		<!-- id -->
+		<div class="row">
+			<article class="col-xs-12 bottom-margin0">
+				<div class="col-xs-12">
+					<label for="id"><h3 class="text-white">ID</h3></label>
+				</div>
+				<div class="col-xs-12">
+					<input class="signform " type="text" placeholder="Enter ID" name="uid" id="uid" required>
+				</div>
+			</article>
+		</div>
+		<!-- end id -->
+		<!-- password -->
+		<div class="row">
+			<article class="col-xs-12 bottom-margin0">
+				<div class="col-xs-12">
+					<label for="psw"><h3 class="text-white">Password</h3></label>
+				</div>
+				<div class="col-xs-12">
+					<input class="signform" type="password" placeholder="Enter Password" name="pwd" id="pwd" required>
+				</div>
+			</article>
+		</div>
+		<!-- end password -->
+		<!-- password repeat -->
+		<div class="row">
+			<article class="col-xs-12 bottom-margin30">
+				<div class="col-xs-12">
+					<label for="repsw"><h3 class="text-white">Repeat Password</h3></label>
+				</div>
+				<div class="col-xs-12">
+					<input class="signform" type="password" placeholder="Repeat Password" name="repwd" id="repwd"  required>
+				</div>
+			</article>
+		</div>
+		<!-- end password repeat -->
+		<!-- button -->
+		<div class="row">
+			<article class="col-xs-12 text-center bottom-margin30">
+				<div class="col-xs-12 text-center">
+					<button class="btn btn-default btn-lg btn-block mybutton-design">Join</button>
+				</div>
+            </article>
+		</div>
+		<!-- end button -->
+	</div>
+	</form>
+	<!--end sign up-->
+		</div>
+	</div>
+ {% endblock %}
