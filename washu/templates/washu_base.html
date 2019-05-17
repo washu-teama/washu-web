@@ -34,14 +34,17 @@
             <div class="collapse navbar-collapse" id="navbar">
                 <ul class="nav navbar-nav">
 
-                    -->
                     {% if user.is_authenticated %}
+
                     <li>
-                        <a href="{% url 'logout' %}">SignOut</a>
+                        <a href="{% url 'smartplug-list' %}">smartplug home</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'logout' %}">logout</a>
                     </li>
                     {% else %}
                     <li>
-                        <a href="{% url 'login' %}">SignIn</a>
+                        <a href="{% url 'login' %}">login</a>
                     </li>
                     {% endif %}
                 </ul>

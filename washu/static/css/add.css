@@ -109,6 +109,21 @@
   background-color: #848082;
   color: white;
 }
+
+.mybutton-design2 {
+  background-color: #3caea3;
+  color: white;
+}
+
+.mybutton-design3 {
+  background-color: #20639b;
+  color: white;
+}
+
+.mybutton-design4 {
+  background-color: #ED553b;
+  color: white;
+}
 .bg-color{
   background-color: #f7f3f3;
 }
@@ -194,6 +209,11 @@
 .mypadding3{
   padding-top: 60px;
   padding-bottom: 60px;
+}
+
+.mypadding4{
+  padding-top: 20px;
+  padding-bottom: 0px;
 }
 .matchbox{
   border: 5px solid #848082;

@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, reverse
 from django.http import HttpResponse
 from common.utils import get_default_context
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import *
 from common.hk_restapi import get_smartplug_api_client
@@ -31,7 +32,7 @@ class HeartBeatCheckerView(View):
         return HttpResponse('')
 
 
-class SmartPlugTurnOnOffView(View):
+class SmartPlugTurnOnOffView(LoginRequiredMixin, View):
     def get(self, request):
         # TODO(choiking10) make form
         if "serial_number" not in request.GET or "onoff" not in request.GET:
@@ -61,7 +62,7 @@ class SmartPlugTurnOnOffView(View):
         return HttpResponseRedirect(redirect_to=redirect_to)
 
 
-class SmartPlugListView(View):
+class SmartPlugListView(LoginRequiredMixin, View):
     def get(self, request):
         update_device_info()
         sp = SmartPlug.objects.all()
@@ -76,10 +77,56 @@ class SmartPlugListView(View):
             lists.append({
                 "name": plug.name + (" - offline" if plug.status == SmartPlug.DISCONNECT else ""),
                 "status": SmartPlug.STATUS_STATIC[plug.status],
-                "onoff_url": onoff_url
+                "onoff_url": onoff_url,
+                "serial_number": plug.serial_number
             })
         return render(request, 'smartplug/list.html',
                       get_default_context(request, lists=lists))
+
+
+class SmartPlugConfigView(LoginRequiredMixin, View):
+    def get(self, request, serial_number):
+        try:
+            plug = SmartPlug.objects.get(pk=serial_number)
+        except ObjectDoesNotExist:
+            return HttpResponseNotFound()
+
+        events = SmartPlugEvent.objects.filter(smartplug=plug, user=request.user)
+
+        return render(request, 'smartplug/config.html',
+                      get_default_context(request, plug=plug, lists=events))
+
+
+class SmartPlugEventDeleteView(LoginRequiredMixin, View):
+    def post(self, request, serial_number, id):
+        try:
+            plug = SmartPlug.objects.get(pk=serial_number)
+            SmartPlugEvent.objects.get(pk=id, smartplug=plug, user=request.user).delete()
+        except ObjectDoesNotExist:
+            return HttpResponseNotFound()
+        return HttpResponseRedirect(reverse("events", kwargs={"serial_number": serial_number}))
+
+
+class SmartPlugEventCreateView(LoginRequiredMixin, View):
+    def get(self, request, serial_number):
+        try:
+            plug = SmartPlug.objects.get(pk=serial_number)
+        except ObjectDoesNotExist:
+            return HttpResponseNotFound()
+        events = SmartPlugEvent.objects.filter(smartplug=plug, user=request.user)
+        return render(request, 'smartplug/event_create.html',
+                      get_default_context(request, plug=plug, lists=events))
+
+    def post(self, request, serial_number):
+        try:
+            plug = SmartPlug.objects.get(pk=serial_number)
+        except ObjectDoesNotExist:
+            return HttpResponseNotFound()
+        SmartPlugEvent(smartplug=plug,
+                       user=request.user,
+                       event=int(request.POST["when"]),
+                       do=int(request.POST["do"])).save()
+        return HttpResponseRedirect(reverse("events", kwargs={"serial_number": serial_number}))
 
 
 def update_device_info():

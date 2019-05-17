@@ -17,6 +17,12 @@ class SmartPlugAdmin(admin.ModelAdmin):
     list_display = ["serial_number", "coordinator", "name"]
 
 
+@admin.register(SmartPlugEvent)
+class SmartPlugEventAdmin(admin.ModelAdmin):
+    list_display = ["smartplug", "user", 'event', 'do']
+
+
 @admin.register(SmartPlugOwner)
 class SmartPlugOwnerAdmin(admin.ModelAdmin):
     list_display = ["smartplug", "user", 'grant', 'name']
+

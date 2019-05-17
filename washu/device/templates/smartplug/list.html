@@ -38,10 +38,11 @@
 
 					<td style="text-align:right">
 						<img src="{% static 'img/config.png' %}" style="max-width:100%;"
-							 onclick="javascript:location.href=''">>
+							 onclick="javascript:location.href='{% url 'events' serial_number=item.serial_number %}'">
 					</td>
 				</tr>
 		{% endfor %}
 		</table>
 	</div>
+
 {% endblock %}

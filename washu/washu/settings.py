@@ -159,3 +159,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 HK_NETWORKS_CONFIG = json.load(open(os.path.join(BASE_DIR, 'hk.json'), "r"))
+
+
+LOGIN_URL = '/user/login/'

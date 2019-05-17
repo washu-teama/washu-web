@@ -94,7 +94,7 @@ class SmartPlug(models.Model):
     OFF = 0
     ON = 1
     DISCONNECT = 2
-    STATUS = [(DISCONNECT, "disconnect"), (ON, "on"), (OFF, "off")]
+    STATUS = [(OFF, "off"), (ON, "on"), (DISCONNECT, "disconnect")]
     STATUS_STATIC = [static("img/off.png"), static("img/on.png"), static("img/disconnect.png")]
 
     serial_number = models.CharField(max_length=20, primary_key=True)
@@ -129,6 +129,21 @@ class SmartPlugOwner(models.Model):
     def __str__(self):
         return "{}[{}] {}".format(self.user, self.grant, self.smartplug)
 
+
+class SmartPlugEvent(models.Model):
+    ENTER = 0
+    LEAVE = 1
+    EVENTS = [(ENTER, "enter"), (LEAVE, "leave")]
+
+    OFF = 0
+    ON = 1
+    STATUS = [(OFF, "off"), (ON, "on")]
+
+    id = models.AutoField(primary_key=True)
+    smartplug = models.ForeignKey(SmartPlug, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.IntegerField(choices=EVENTS)
+    do = models.IntegerField(choices=STATUS)
 
 @receiver(post_save, sender=SmartPlug)
 def create_relation_between_smartplug_and_coordinator(sender, instance, created, **kwargs):
