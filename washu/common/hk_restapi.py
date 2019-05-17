@@ -172,7 +172,7 @@ class SmartPlugBase(LoggingBase):
             "protocol": 3,
             "sn": serial_numbers
         }
-        print(data)
+
         result = self._post_api("sww/511", data)
         self.log.debug(result)
 
