@@ -64,7 +64,7 @@ class SmartPlugTurnOnOffView(View):
 
 class SmartPlugListView(View):
     def get(self, request):
-
+        update_device_info()
         sp = SmartPlug.objects.all()
         lists = []
         for plug in sp:
@@ -75,10 +75,25 @@ class SmartPlugListView(View):
                             plug.serial_number, toggle, reverse("smartplug-list"))
 
             lists.append({
-                "name": plug.name,
+                "name": plug.name + (" - offline" if plug.status == SmartPlug.DISCONNECT else ""),
                 "status": SmartPlug.STATUS_STATIC[plug.status],
                 "onoff_url": onoff_url
             })
         return render(request, 'smartplug/list.html',
                       get_default_context(request, lists=lists))
 
+
+def update_device_info():
+    api = get_smartplug_api_client()
+    data = api.get_device_power([plug.serial_number for plug in SmartPlug.objects.all()])
+
+    for plug_data in data:
+        try:
+            plug = SmartPlug.objects.get(pk=plug_data["sn"])
+            if plug_data["online"] == 0:
+                plug.status = SmartPlug.DISCONNECT
+            else:
+                plug.status = plug_data["switch"][0]
+            plug.save()
+        except BaseException as e:
+            log.error(e)

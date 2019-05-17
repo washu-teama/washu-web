@@ -167,6 +167,17 @@ class SmartPlugBase(LoggingBase):
 
         return result["data"]["dev"]
 
+    def get_device_power(self, serial_numbers: list):
+        data = {
+            "protocol": 3,
+            "sn": serial_numbers
+        }
+        print(data)
+        result = self._post_api("sww/511", data)
+        self.log.debug(result)
+
+        return result["data"]
+
 
 CLIENT = None
 
