@@ -26,7 +26,9 @@ SECRET_KEY = 'pv$*qz41(dqyk%-(_*%=nwypa#n&xpi5hzxakz3pf84r_$xjbg'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+MY_IP = "15.164.7.33"
+
+ALLOWED_HOSTS = [MY_IP, "localhost", "127.0.0.01"]
 
 
 # Application definition
