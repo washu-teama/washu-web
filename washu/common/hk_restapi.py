@@ -117,7 +117,7 @@ class SmartPlugBase(LoggingBase):
         self.login(self.id, self.pwd)
         self.get_token()
 
-    def onoff(self, serial_number, state, port=0):
+    def onoff(self, serial_number, state, port=0, retry=1):
         data = {
             "protocol": 3,
             "sn": serial_number,
@@ -130,6 +130,8 @@ class SmartPlugBase(LoggingBase):
         if result["code"] != 200:
             self.log.error("on/off fail {}".format(result))
             self.resolve_error(result)
+            if retry >= 1:
+                self.onoff(serial_number, state, port, retry-1)
 
     def get_device_info(self, device="all"):
         data = {
