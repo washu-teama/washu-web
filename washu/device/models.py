@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.templatetags.static import static
 # Create your models here.
 
 
@@ -36,9 +37,16 @@ class Coordinator(models.Model):
 
 
 class SmartPlug(models.Model):
+    OFF = 0
+    ON = 1
+    DISCONNECT = 2
+    STATUS = [(DISCONNECT, "disconnect"), (ON, "on"), (OFF, "off")]
+    STATUS_STATIC = [static("img/disconnect.png"), static("img/on.png"), static("img/off.png")]
+
     serial_number = models.CharField(max_length=20, primary_key=True)
     coordinator = models.ForeignKey(Coordinator, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=32)
+    status = models.IntegerField(choices=STATUS, default=DISCONNECT)
     created_at = models.DateTimeField(editable=False, default=timezone.now)
 
     def save(self, *args, **kwargs):

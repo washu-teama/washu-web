@@ -28,7 +28,7 @@ DEBUG = True
 
 MY_IP = "15.164.7.33"
 
-ALLOWED_HOSTS = [MY_IP, "localhost", "127.0.0.01"]
+ALLOWED_HOSTS = [MY_IP, "localhost", "127.0.0.1"]
 
 
 # Application definition

@@ -36,6 +36,7 @@ class LoggingBase:
 class SmartPlugBase(LoggingBase):
     OPEN_BASE = "https://open.hknetworks.kr/smartlife"
     API_BASE = "https://eco.hknetworks.kr/app"
+
     def __init__(self, client_id, client_secret, id=None, pwd=None):
         super(SmartPlugBase, self).__init__()
 
@@ -44,6 +45,8 @@ class SmartPlugBase(LoggingBase):
         self.access_token = None
         self.access_token_expire = None
         self.code = None
+        self.id = id
+        self.pwd = pwd
         if id and pwd:
             self.login(id, pwd)
             self.get_token()
@@ -68,10 +71,14 @@ class SmartPlugBase(LoggingBase):
                           data_=data, auth=False)
 
     def _post_api(self, to, data):
+        self.token_refresh()
         return self._post("/".join([self.API_BASE, to]),
                           json_=data, auth=True)
 
     def login(self, id, pwd):
+        self.id = id
+        self.pwd = pwd
+
         data = {
             "clientid": self.client_id,
             "userid": id,
@@ -99,8 +106,10 @@ class SmartPlugBase(LoggingBase):
                                    timedelta(seconds=result["expires_in"])
 
     def token_refresh(self):
-        if datetime.now() >= self.access_token_expire:
-            self.token_refresh()
+        if datetime.now() <= self.access_token_expire:
+            return
+        self.login(self.id, self.pwd)
+        self.get_token()
 
     def onoff(self, serial_number, state, port=0):
         data = {
@@ -127,12 +136,19 @@ class SmartPlugBase(LoggingBase):
         return result["data"]["dev"]
 
 
+CLIENT = None
+
+
 def get_smartplug_api_client():
+    global CLIENT
+    if CLIENT:
+        return CLIENT
+
     from django.conf import settings
     config = settings.HK_NETWORKS_CONFIG
-    plug = SmartPlugBase(client_id=config["client_id"],
-                         client_secret=config["client_secret"],
-                         id=config["id"],
-                         pwd=config["password"])
+    CLIENT = SmartPlugBase(client_id=config["client_id"],
+                           client_secret=config["client_secret"],
+                           id=config["id"],
+                           pwd=config["password"])
 
-    return plug
+    return CLIENT
