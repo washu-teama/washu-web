@@ -13,7 +13,7 @@ from .models import *
 from common.hk_restapi import get_smartplug_api_client
 from common.hk_restapi import HKDeviceOfflineException, HKBaseException
 
-log = logging.getLogger()
+log = logging.getLogger('django')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -45,9 +45,8 @@ class SmartPlugTurnOnOffView(View):
         if "redirect_to" in request.GET:
             redirect_to = request.GET["redirect_to"]
 
-        hk = get_smartplug_api_client()
         try:
-            hk.onoff(plug.serial_number, int(request.GET["onoff"]))
+            plug.coordinator.onoff(plug.serial_number, int(request.GET["onoff"]))
         except HKDeviceOfflineException:
             plug.status = SmartPlug.DISCONNECT
             plug.save()
@@ -84,16 +83,21 @@ class SmartPlugListView(View):
 
 
 def update_device_info():
-    api = get_smartplug_api_client()
-    data = api.get_device_power([plug.serial_number for plug in SmartPlug.objects.all()])
+    coordinators = Coordinator.objects.all()
 
-    for plug_data in data:
-        try:
-            plug = SmartPlug.objects.get(pk=plug_data["sn"])
-            if plug_data["online"] == 0:
-                plug.status = SmartPlug.DISCONNECT
-            else:
-                plug.status = plug_data["switch"][0]
-            plug.save()
-        except BaseException as e:
-            log.error(e)
+    for coordinator in coordinators:
+        serials = []
+        for plug in SmartPlug.objects.filter(coordinator=coordinator):
+            serials.append(plug.serial_number)
+        data = coordinator.get_device_power(serials)
+
+        for plug_data in data:
+            try:
+                plug = SmartPlug.objects.get(pk=plug_data["sn"])
+                if plug_data["online"] == 0:
+                    plug.status = SmartPlug.DISCONNECT
+                else:
+                    plug.status = plug_data["switch"][0]
+                plug.save()
+            except BaseException as e:
+                log.error(e)
