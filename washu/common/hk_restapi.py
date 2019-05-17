@@ -150,7 +150,11 @@ class SmartPlugBase(LoggingBase):
             if retry >= 1:
                 self.token_refresh()
                 self.log.info("retry... {}".format(retry))
-                self.onoff(serial_number, state, port, retry-1)
+                result = self.onoff(serial_number, state, port, retry-1)
+            else:
+                raise e
+
+        return result
 
     def get_device_info(self, device="all"):
         data = {

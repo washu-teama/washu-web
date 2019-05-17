@@ -41,7 +41,7 @@ class SmartPlug(models.Model):
     ON = 1
     DISCONNECT = 2
     STATUS = [(DISCONNECT, "disconnect"), (ON, "on"), (OFF, "off")]
-    STATUS_STATIC = [static("img/disconnect.png"), static("img/on.png"), static("img/off.png")]
+    STATUS_STATIC = [static("img/off.png"), static("img/on.png"), static("img/disconnect.png")]
 
     serial_number = models.CharField(max_length=20, primary_key=True)
     coordinator = models.ForeignKey(Coordinator, null=True, on_delete=models.SET_NULL)

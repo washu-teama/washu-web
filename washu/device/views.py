@@ -11,6 +11,7 @@ from common.utils import get_default_context
 
 from .models import *
 from common.hk_restapi import get_smartplug_api_client
+from common.hk_restapi import HKDeviceOfflineException, HKBaseException
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -38,14 +39,22 @@ class SmartPlugTurnOnOffView(View):
         except ObjectDoesNotExist:
             return HttpResponseNotFound()
 
-        hk = get_smartplug_api_client()
-
-        hk.onoff(plug.serial_number, int(request.GET["onoff"]))
-        plug.status = int(request.GET["onoff"])
-        plug.save()
         redirect_to = reverse("smartplug-list")
         if "redirect_to" in request.GET:
             redirect_to = request.GET["redirect_to"]
+
+        hk = get_smartplug_api_client()
+        try:
+            hk.onoff(plug.serial_number, int(request.GET["onoff"]))
+        except HKDeviceOfflineException:
+            plug.status = SmartPlug.DISCONNECT
+            plug.save()
+            return HttpResponseRedirect(redirect_to=redirect_to)
+        except HKBaseException:
+            return HttpResponseRedirect(redirect_to=redirect_to)
+
+        plug.status = int(request.GET["onoff"])
+        plug.save()
 
         return HttpResponseRedirect(redirect_to=redirect_to)
 
