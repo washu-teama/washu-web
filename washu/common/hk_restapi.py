@@ -5,6 +5,26 @@ import logging
 from datetime import datetime, timedelta
 
 
+class HKBaseException(BaseException):
+    code = 0
+
+
+class HKNoResponseCodeException(HKBaseException):
+    code = 600
+
+
+class HKErrorException(HKBaseException):
+    code = 400
+
+
+class HKAccessTokenException(HKBaseException):
+    code = 401
+
+
+class HKDeviceOfflineException(HKBaseException):
+    code = 500
+
+
 class LoggingBase:
     def __init__(self):
         self.init()
@@ -71,15 +91,15 @@ class SmartPlugBase(LoggingBase):
                           data_=data, auth=False)
 
     def _post_api(self, to, data):
-        self.token_refresh()
-        return self._post("/".join([self.API_BASE, to]),
-                          json_=data, auth=True)
+        api_result = self._post("/".join([self.API_BASE, to]), json_=data, auth=True)
+        if len(api_result) == 0 or "code" not in api_result:
+            raise HKNoResponseCodeException()
+        if api_result["code"] != 200:
+            for exception in HKBaseException.__class__.__subclasses__(HKBaseException):
+                if exception.code == api_result["code"]:
+                    raise exception(str(api_result))
 
-    def resolve_error(self, res):
-        code = res["code"]
-
-        if code == 401:
-            self.token_refresh()
+        return api_result
 
     def login(self, id, pwd):
         self.id = id
@@ -112,8 +132,6 @@ class SmartPlugBase(LoggingBase):
                                    timedelta(seconds=result["expires_in"])
 
     def token_refresh(self):
-        if datetime.now() <= self.access_token_expire:
-            return
         self.login(self.id, self.pwd)
         self.get_token()
 
@@ -124,13 +142,14 @@ class SmartPlugBase(LoggingBase):
             "port": port,
             "state": state
         }
-        result = self._post_api("sww/200", data)
-        self.log.debug(result)
-
-        if result["code"] != 200:
-            self.log.error("on/off fail {}".format(result))
-            self.resolve_error(result)
+        try:
+            result = self._post_api("sww/200", data)
+            self.log.debug(result)
+        except (HKAccessTokenException, HKNoResponseCodeException) as e:
+            self.log.error("on/off fail {}".format(e))
             if retry >= 1:
+                self.token_refresh()
+                self.log.info("retry... {}".format(retry))
                 self.onoff(serial_number, state, port, retry-1)
 
     def get_device_info(self, device="all"):
@@ -141,7 +160,6 @@ class SmartPlugBase(LoggingBase):
 
         result = self._post_api("user/500", data)
         self.log.debug(result)
-        self.resolve_error(result)
 
         return result["data"]["dev"]
 
