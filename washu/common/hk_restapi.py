@@ -146,7 +146,7 @@ class SmartPlugBase(LoggingBase):
             result = self._post_api("sww/200", data)
             self.log.debug(result)
         except (HKAccessTokenException, HKNoResponseCodeException) as e:
-            self.log.error("on/off fail {}".format(e))
+            self.log.error("[on/off fail] error: [{}]".format(e))
             if retry >= 1:
                 self.token_refresh()
                 self.log.info("retry... {}".format(retry))

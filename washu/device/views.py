@@ -1,3 +1,5 @@
+import logging
+
 from django.views import View
 from django.http import *
 from django.utils.decorators import method_decorator
@@ -5,13 +7,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, reverse
 from django.http import HttpResponse
-from django.template import loader
 from common.utils import get_default_context
-
 
 from .models import *
 from common.hk_restapi import get_smartplug_api_client
 from common.hk_restapi import HKDeviceOfflineException, HKBaseException
+
+log = logging.getLogger()
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -50,7 +52,8 @@ class SmartPlugTurnOnOffView(View):
             plug.status = SmartPlug.DISCONNECT
             plug.save()
             return HttpResponseRedirect(redirect_to=redirect_to)
-        except HKBaseException:
+        except HKBaseException as e:
+            log.error("unknown error [{}]".format(e))
             return HttpResponseRedirect(redirect_to=redirect_to)
 
         plug.status = int(request.GET["onoff"])
