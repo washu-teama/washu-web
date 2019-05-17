@@ -75,6 +75,12 @@ class SmartPlugBase(LoggingBase):
         return self._post("/".join([self.API_BASE, to]),
                           json_=data, auth=True)
 
+    def resolve_error(self, res):
+        code = res["code"]
+
+        if code == 401:
+            self.token_refresh()
+
     def login(self, id, pwd):
         self.id = id
         self.pwd = pwd
@@ -123,6 +129,7 @@ class SmartPlugBase(LoggingBase):
 
         if result["code"] != 200:
             self.log.error("on/off fail {}".format(result))
+            self.resolve_error(result)
 
     def get_device_info(self, device="all"):
         data = {
@@ -132,6 +139,7 @@ class SmartPlugBase(LoggingBase):
 
         result = self._post_api("user/500", data)
         self.log.debug(result)
+        self.resolve_error(result)
 
         return result["data"]["dev"]
 
