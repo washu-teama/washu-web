@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^login/', LogIn.as_view(), name="login"),
     url(r'^logout/', LogOut.as_view(), name="logout"),
     url(r'^signup/', SignUp.as_view(), name="signup"),
+    url(r'^IAmHere/', IAmHere.as_view(), name="i-am-here"),
 ]

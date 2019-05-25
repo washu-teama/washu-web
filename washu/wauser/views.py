@@ -3,11 +3,15 @@ from django.http import *
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from common.utils import get_default_context
 from .forms import SignupForm
-from .models import User
+from .models import User, Location
+from device.models import Coordinator
 
 
 class LogIn(View):
@@ -58,3 +62,23 @@ class SignUp(View):
         c.update({'form': form})
         return render(request, 'wauser/signup.html', c)
 
+
+@method_decorator(csrf_exempt, name='dispatch')
+class IAmHere(View):
+    def post(self, request):
+        data = request.POST
+        print(data)
+        id = data["id"]
+        pwd = data["pwd"]
+        uuid = data["uuid"]
+        detect_addr = data["device_addr"]
+        detect_name = data["device_name"]
+
+        user = authenticate(username=id, password=pwd)
+        coordinator = Coordinator.objects.get(pk=detect_addr)
+
+        Location(user=user,
+                 coordinator=coordinator,
+                 device_id=uuid).save()
+
+        return HttpResponse()
