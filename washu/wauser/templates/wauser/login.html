@@ -45,7 +45,7 @@
 						<div class="form-group">
 							<input type="password" class="form-control" id="pwd" name="pwd" placeholder="Password">
 						</div>
-						<button type="submit" class="btn btn-default">Log In</button>
+						<button type="submit" class="btn btn-default" onclick="sendMessage()">Log In</button>
 						<p align="left"> <a href=""> You don't remember your password ? </a></p>
 						<p align="right"><a href="{% url 'signup' %}">Sign up </a> </p> </p>
 					</form>
@@ -62,3 +62,23 @@
       </div>
     </div>
 {% endblock %}
+
+ {% block add_script %}
+ <script language="JavaScript">
+
+	function setMessage(arg) {
+		 document.getElementById('uid').value;
+	}
+
+	function sendMessage(){
+		uid = document.getElementById('uid').value;
+		pwd = document.getElementById('pwd').value;
+		if (window.android)
+			window.android.setLoginInfo(uid, pwd);
+		console.log(uid);
+		console.log(pwd);
+
+	}
+
+</script>
+ {% endblock %}
