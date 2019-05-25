@@ -27,8 +27,9 @@ SECRET_KEY = 'pv$*qz41(dqyk%-(_*%=nwypa#n&xpi5hzxakz3pf84r_$xjbg'
 DEBUG = True
 
 MY_IP = "15.164.7.33"
+MY_IP2 = "143.248.55.31"
 
-ALLOWED_HOSTS = [MY_IP, "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [MY_IP, MY_IP2, "localhost", "127.0.0.1"]
 
 
 # Application definition
