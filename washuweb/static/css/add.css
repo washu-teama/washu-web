@@ -1,5 +1,5 @@
 .my-background-img{
-  background-image:url('../img/b4.jpg');
+  background-image:url('../img/b4.png');
   background-size: cover;
 }
 .text-white {
@@ -41,12 +41,13 @@
   margin-top: 8px;
 }
 .announce-bg{
-  background-image:url('../img/b2.jpg');
+  background-image:url('../img/b2.png');
   background-size: cover;
 }
 .announce{
   padding-right: 25px;
   padding-left: 25px;
+  padding-bottom: 80px;
 }
 .detail-bg{
   background-image:url('../img/b3.jpg');
@@ -61,7 +62,7 @@
   background-size: cover;
 }
 .signup-bg{
-  background-image:url('../img/b5.jpg');
+  background-image:url('../img/bg5.png');
   background-size: cover;
 }
 .yellow-mark {
