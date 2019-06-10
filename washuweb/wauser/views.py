@@ -26,7 +26,7 @@ class LogIn(View):
                 return HttpResponseRedirect(reverse('main'))
         c = get_default_context(request)
         c.update({"wrong": True})
-        return render(request, 'wauser/first_page.html', c)
+        return render(request, 'wauser/login.html', c)
 
     def get(self, request):
         if request.user.id:
