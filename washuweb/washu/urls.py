@@ -22,6 +22,8 @@ from django.conf.urls.static import static
 
 from .main_view import Main
 
+admin.site.site_header = 'Washu administration'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('wauser.urls')),
